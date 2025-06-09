@@ -1,12 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import { Controller, Get,Body } from '@nestjs/common';
 import { AppService } from './app.service';
+import { RabbitMQService } from './rabbitmq/rabbitmq.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
+  constructor(private readonly appService: AppService,
+    private rabbitMQService: RabbitMQService) { }
+  
   @Get()
-  getHello(): string {
+  async sayHi(): Promise<string> {
+    await this.rabbitMQService.consumeMessages();
     return this.appService.getHello();
   }
 }
