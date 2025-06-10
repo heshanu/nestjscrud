@@ -13,6 +13,7 @@ import { UsersModule } from './users/users.module';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DatetimeService } from './datetime/datetime.service';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -40,6 +41,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     UsersModule
   ],
   controllers: [AppController],
-  providers: [AppService,RabbitMQService],
+  providers: [AppService,RabbitMQService, DatetimeService],
 })
 export class AppModule {}

@@ -21,7 +21,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     await this.connect();
     await this.setupQueueAndExchange();
-    await this.consumeMessages();
+    // await this.consumeMessages();
   }
 
   async connect() {
@@ -47,16 +47,45 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     Logger.log(`📤 Sent "${message}" with routing key "${routingKey}"`);
   }
 
-  async consumeMessages() {
-    if (!this.channel) throw new Error('Channel not initialized');
+  // async consumeMessages() {
+  //   if (!this.channel) throw new Error('Channel not initialized');
 
-    this.channel.consume(this.queue, (msg) => {
-      if (msg !== null) {
-        const content = msg.content.toString();
-        const rk = msg.fields.routingKey;
-        Logger.log(`📥 Received [${rk}]: ${content}`);
-        this.channel.ack(msg);
-      }
+  //   this.channel.consume(this.queue, (msg) => {
+  //     if (msg !== null) {
+  //       const content = msg.content.toString();
+  //       const rk = msg.fields.routingKey;
+  //       Logger.log(`📥 Received [${rk}]: ${content}`);
+  //       this.channel.ack(msg);
+  //     }
+  //   });
+  // }
+  async consumeMessages(): Promise<string[]> {
+    if (!this.channel) {
+      throw new Error('Channel not initialized');
+    }
+
+    const messages: string[] = [];
+
+    return new Promise((resolve, reject) => {
+      this.channel.consume(this.queue, (msg) => {
+        if (msg !== null) {
+          const content = msg.content.toString();
+          const rk = msg.fields.routingKey;
+          Logger.log(`📥 Received [${rk}]: ${content}`);
+
+          // Add the content to the messages array
+          messages.push(content);
+
+          // Acknowledge the message
+          this.channel.ack(msg);
+        }
+      });
+
+      // Resolve the promise with the collected messages after a certain condition or timeout
+      // For example, you might want to resolve after a timeout or when a certain number of messages are received
+      setTimeout(() => {
+        resolve(messages);
+      }, 5000); // Resolve after 5 seconds, adjust as needed
     });
   }
 
