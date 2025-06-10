@@ -1,22 +1,17 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable prettier/prettier */
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class UserEntity{
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @Column()
-  name: string;
-
-  @Column({ unique: true })
-  email: string;
+  firstName: string;
 
   @Column()
-  password: string;
+  lastName: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  @Column({ default: true })
+  isActive: boolean;
 }
