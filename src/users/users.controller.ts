@@ -1,50 +1,38 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable prettier/prettier */
-// eslint-disable-next-line prettier/prettier
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Param, Delete, Post, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { UserEntity } from './entities/user.entity';
-
+import { UserResponse } from './dto/user.response';
+import { RabbitMQService } from '../rabbitmq/rabbitmq.service';
 @Controller('users')
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
+export class UserController {
+  constructor(private readonly userService: UsersService, private rabbitMQService: RabbitMQService) { }
 
   @Get()
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'List of users', type: [UserEntity] })
-  async findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10
-  ): Promise<{ data: UserEntity[]; count: number; page: number; limit: number }> {
-    const [data, count] = await this.usersService.findAll(page, limit);
-    return {
-      data,
-      count,
-      page: Number(page),
-      limit: Number(limit),
-    };
+  findAll(): Promise<UserResponse[]> {
+    return this.userService.findAll();
   }
 
-  @Delete('delete/:id')
-  @HttpCode(HttpStatus.OK)
-  async deleteUserById(@Param('id') id: number): Promise<{ message: string }> {
-    await this.usersService.deleteUserById(id);
-    return { message: `User ${id} Delete successfully` };
+  // @Get(':id')
+  // findOne(@Param('id') id: string): Promise<UserResponse|null> {
+  //   return this.userService.findOne(+id);
+  // }
+
+  @Delete(':id')
+  remove(@Param('id') id: string): Promise<void> {
+    return this.userService.remove(+id);
   }
 
-  @Patch()
-  async updateUser(@Body() updateUserDto:UpdateUserDto): Promise<{ message: string}>{ 
-   await this.usersService.updateUserById(updateUserDto.email,updateUserDto);
-    return { message: `User ${updateUserDto.email} :Update successfully` };
+  @Post()
+  async createUser(@Body() createUserDto: UserResponse): Promise<UserResponse> {
+    return await this.userService.createUser(createUserDto);
+  }
+
+  @Get('notification')
+  async getMessages(): Promise<string[]> {
+    return await this.rabbitMQService.consumeMessages();
   }
 }
