@@ -1,19 +1,23 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "dist/vercel.js",
-        "use": "@vercel/node",
-        "config": {
-          "includeFiles": ["dist/**"]
-        }
+  "version": 2,
+  "builds": [
+    {
+      "src": "dist/vercel.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["dist/**"]
       }
-    ],
-    "routes": [
-      {
-        "src": "api/v1/(.*)",
-        "dest": "dist/vercel.ts/api/v1/(.*)",
-        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-      }
-    ]
-  }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/v1/(.*)",
+      "dest": "dist/vercel.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "dist/vercel.js",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    }
+  ]
+}
