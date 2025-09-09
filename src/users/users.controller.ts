@@ -3,11 +3,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Param, Delete, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, Delete, Post, Body, UseInterceptors  } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserResponse } from './dto/user.response';
 import { RabbitMQService } from '../rabbitmq/rabbitmq.service';
 @Controller('users')
+@UseInterceptors(UseInterceptors)
 export class UserController {
   constructor(private readonly userService: UsersService, private rabbitMQService: RabbitMQService) { }
 

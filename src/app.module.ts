@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable prettier/prettier */
-import { Module, OnApplicationShutdown, Logger } from '@nestjs/common';
+import { Module, OnApplicationShutdown, Logger, CacheModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
@@ -10,6 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { UserEntity } from './users/entities/user.entity';
+import { redisStore } from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -107,6 +108,18 @@ import { UserEntity } from './users/entities/user.entity';
 
     }),
 
+    CacheModule.registerAsync({
+      isGlobal: true, // makes cache available app-wide
+      useFactory: async () => ({
+        store: await redisStore({
+          socket: {
+            host: 'localhost',
+            port: 6379,
+          },
+          ttl: 60, // cache time-to-live in seconds
+        }),
+      }),
+    }),
     RabbitmqModule,
     UsersModule
   ],
